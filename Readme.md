@@ -46,7 +46,7 @@ dotnet ef database update
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "Host=YOUR_HOST;Database=postgres;Username=postgres;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
+    "DefaultConnection": "connectionString Select type .NET in appsettings.json"
   },
   "Jwt": {
     "Key": "THIS_IS_SUPER_SECRET_KEY_123456789",
