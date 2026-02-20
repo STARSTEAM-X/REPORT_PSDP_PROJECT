@@ -40,3 +40,6 @@ bld/
 # Entity Framework
 *.sqlite
 *.db
+MyApi/obj/Debug/net10.0/MyApi.AssemblyInfoInputs.cache
+MyApi/obj/Debug/net10.0/MyApi.AssemblyInfo.cs
+MyApi/appsettings.json
