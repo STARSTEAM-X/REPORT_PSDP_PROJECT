@@ -2,9 +2,10 @@ namespace MyApi.Modals;
 
 public enum ReportStatus
 {
-    Submitted, // ผู้ใช้แจ้งซ่อมเข้ามา
-    Inspecting, // เจ้าหน้าที่กำลังตรวจสอบ
-    InRepair, // ช่างกำลังซ่อม  
-    ReadyToClose, // ช่างแจ้งว่าซ่อมเสร็จแล้ว รอ Admin ปิดงาน
-    Closed     // Admin ปิดงานจริง
+    Submitted,      // User ส่งเข้ามา
+    NeedMoreInfo,   // Admin ขอข้อมูลเพิ่ม
+    Accepted,       // Admin รับงาน
+    InRepair,       // ส่งให้ช่างแล้ว
+    ReadyToClose,   // ซ่อมเสร็จ
+    Closed          // ปิดงาน
 }

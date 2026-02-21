@@ -5,6 +5,7 @@ using MyApi.Data;
 using MyApi.DTO;
 using MyApi.Modals;
 using System.Security.Claims;
+using System.Text.Json;
 
 namespace MyApi.Controllers;
 
@@ -20,7 +21,9 @@ public class ReportController : ControllerBase
         _context = context;
     }
 
-    // 🔹 สร้าง Report
+    // =========================================================
+    // 1️⃣ User สร้าง Report
+    // =========================================================
     [HttpPost]
     public async Task<IActionResult> Create(CreateReportDto dto)
     {
@@ -34,14 +37,16 @@ public class ReportController : ControllerBase
             LocationId = dto.LocationId,
             AssetId = dto.AssetId,
             ReportOwner = userId,
-            Status = ReportStatus.Submitted
+            Status = ReportStatus.Submitted,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
         };
 
         _context.Reports.Add(report);
 
-        // 🔔 บันทึก log ว่ามีการสร้าง report ใหม่
         AddProgressLog(report, "Submitted", "User");
-        // 🔔 สร้าง Notification หา Admin
+
+        // แจ้ง Admin
         var admins = await _context.Users
             .Where(u => u.IsAdmin)
             .ToListAsync();
@@ -58,59 +63,125 @@ public class ReportController : ControllerBase
         }
 
         await _context.SaveChangesAsync();
-
         return Ok(report);
     }
 
+    // =========================================================
+    // 2️⃣ Admin ตรวจสอบ Report
+    // =========================================================
     [Authorize(Roles = "Admin")]
-    [HttpPut("{id}/assign/{technicianId}")]
-    public async Task<IActionResult> Assign(int id, int technicianId)
+    [HttpPut("{id}/review")]
+    public async Task<IActionResult> Review(int id, bool isValid)
     {
         var report = await _context.Reports.FindAsync(id);
         if (report == null) return NotFound();
 
-        report.ReportTechnician = technicianId;
-        report.Status = ReportStatus.Inspecting;
+        if (report.Status != ReportStatus.Submitted &&
+            report.Status != ReportStatus.NeedMoreInfo)
+            return BadRequest("Invalid status transition");
+
+        if (isValid)
+        {
+            report.Status = ReportStatus.Accepted;
+            AddProgressLog(report, "Accepted", "Admin");
+        }
+        else
+        {
+            report.Status = ReportStatus.NeedMoreInfo;
+            AddProgressLog(report, "NeedMoreInfo", "Admin");
+
+            _context.Notifications.Add(new Notification
+            {
+                Title = "กรุณาแก้ไขข้อมูลแจ้งซ่อม",
+                Description = report.Title,
+                UserId = report.ReportOwner,
+                ReportId = report.ReportId
+            });
+        }
+
+        report.UpdatedAt = DateTime.UtcNow;
+        await _context.SaveChangesAsync();
+        return Ok(report);
+    }
+
+    // =========================================================
+    // 3️⃣ Admin ส่งงานให้ช่าง (นอกระบบ)
+    // =========================================================
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/start-repair")]
+    public async Task<IActionResult> StartRepair(int id)
+    {
+        var report = await _context.Reports.FindAsync(id);
+        if (report == null) return NotFound();
+
+        if (report.Status != ReportStatus.Accepted)
+            return BadRequest("Report must be accepted first");
+
+        report.Status = ReportStatus.InRepair;
         report.UpdatedAt = DateTime.UtcNow;
 
-        AddProgressLog(report, "Inspecting", "Admin");
-        // แจ้ง Technician
-        _context.Notifications.Add(new Notification
-        {
-            Title = "คุณได้รับงานใหม่",
-            Description = report.Title,
-            UserId = technicianId,
-            ReportId = report.ReportId
-        });
+        AddProgressLog(report, "InRepair", "Admin");
 
         await _context.SaveChangesAsync();
-
         return Ok(report);
     }
 
-    [HttpPut("{id}/status")]
-    public async Task<IActionResult> UpdateStatus(int id, ReportStatus status)
+    // =========================================================
+    // 4️⃣ Admin อัปเดตว่างานซ่อมเสร็จแล้ว
+    // =========================================================
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/mark-ready")]
+    public async Task<IActionResult> MarkReady(int id)
     {
         var report = await _context.Reports.FindAsync(id);
         if (report == null) return NotFound();
 
-        report.Status = status;
+        if (report.Status != ReportStatus.InRepair)
+            return BadRequest("Report must be in repair");
+
+        report.Status = ReportStatus.ReadyToClose;
         report.UpdatedAt = DateTime.UtcNow;
+
+        AddProgressLog(report, "ReadyToClose", "Admin");
 
         // แจ้ง Owner
         _context.Notifications.Add(new Notification
         {
-            Title = "สถานะงานเปลี่ยน",
-            Description = $"งาน {report.Title} เปลี่ยนเป็น {status}",
+            Title = "งานซ่อมเสร็จแล้ว",
+            Description = report.Title,
             UserId = report.ReportOwner,
             ReportId = report.ReportId
         });
 
         await _context.SaveChangesAsync();
-
         return Ok(report);
     }
 
+    // =========================================================
+    // 5️⃣ Admin ปิดงาน
+    // =========================================================
+    [Authorize(Roles = "Admin")]
+    [HttpPut("{id}/close")]
+    public async Task<IActionResult> Close(int id)
+    {
+        var report = await _context.Reports.FindAsync(id);
+        if (report == null) return NotFound();
+
+        if (report.Status != ReportStatus.ReadyToClose)
+            return BadRequest("Report must be ready to close first");
+
+        report.Status = ReportStatus.Closed;
+        report.UpdatedAt = DateTime.UtcNow;
+
+        AddProgressLog(report, "Closed", "Admin");
+
+        await _context.SaveChangesAsync();
+        return Ok(report);
+    }
+
+    // =========================================================
+    // 6️⃣ ดู Report 
+    // =========================================================
     [HttpGet("{id}")]
     public async Task<IActionResult> GetReport(int id)
     {
@@ -125,81 +196,21 @@ public class ReportController : ControllerBase
             return NotFound();
 
         if (!User.IsInRole("Admin") &&
-            report.ReportOwner != userId &&
-            report.ReportTechnician != userId)
+            report.ReportOwner != userId)
             return Forbid();
 
         return Ok(report);
     }
 
-    [Authorize(Roles = "Technician")]
-    [HttpPut("{id}/complete")]
-    public async Task<IActionResult> CompleteReport(int id)
-    {
-        var userId = int.Parse(
-            User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-        var report = await _context.Reports.FindAsync(id);
-        if (report == null)
-            return NotFound();
-
-        // 🔒 ต้องเป็นงานที่ assign ให้ technician คนนี้
-        if (report.ReportTechnician != userId)
-            return Forbid();
-
-        // 🔒 ต้องอยู่ในสถานะ InRepair เท่านั้น
-        if (report.Status != ReportStatus.InRepair)
-            return BadRequest("Report is not in repair status");
-
-        report.Status = ReportStatus.ReadyToClose;
-        report.UpdatedAt = DateTime.UtcNow;
-
-        // 🔔 บันทึก log ว่าช่างทำงานเสร็จแล้ว
-        AddProgressLog(report, "ReadyToClose", "Technician");
-        // 🔔 แจ้ง Owner
-        _context.Notifications.Add(new Notification
-        {
-            Title = "งานซ่อมเสร็จแล้ว",
-            Description = report.Title,
-            UserId = report.ReportOwner,
-            ReportId = report.ReportId
-        });
-
-        await _context.SaveChangesAsync();
-
-        return Ok(report);
-    }
-
-    [Authorize(Roles = "Admin")]
-    [HttpPut("{id}/close")]
-    public async Task<IActionResult> CloseReport(int id)
-    {
-        var report = await _context.Reports.FindAsync(id);
-        if (report == null)
-            return NotFound();
-
-        if (report.Status != ReportStatus.ReadyToClose)
-            return BadRequest("Report must be ready to close first");
-
-        AddProgressLog(report, "Closed", "Admin");
-
-        report.Status = ReportStatus.Closed;
-        report.UpdatedAt = DateTime.UtcNow;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(report);
-    }
-
-
-
+    // =========================================================
+    // 🔹 Helper: Add Progress Log
+    // =========================================================
     private void AddProgressLog(Report report, string status, string by)
     {
         var logs = string.IsNullOrEmpty(report.ProgressLog)
             ? new List<ReportProgressEntry>()
-            : System.Text.Json.JsonSerializer
-                .Deserialize<List<ReportProgressEntry>>(report.ProgressLog)
-                ?? new List<ReportProgressEntry>();
+            : JsonSerializer.Deserialize<List<ReportProgressEntry>>(report.ProgressLog)
+              ?? new List<ReportProgressEntry>();
 
         logs.Add(new ReportProgressEntry
         {
@@ -208,6 +219,6 @@ public class ReportController : ControllerBase
             By = by
         });
 
-        report.ProgressLog = System.Text.Json.JsonSerializer.Serialize(logs);
+        report.ProgressLog = JsonSerializer.Serialize(logs);
     }
 }
