@@ -55,7 +55,7 @@ Update the DefaultConnection value according to your database provider (e.g., Po
 ```json
 {
   "ConnectionStrings": {
-    "DefaultConnection": "connectionString Select type .NET in appsettings.json"
+    "DefaultConnection": "connectionString Select type .NET in Supabase"
   },
   "Jwt": {
     "Key": "THIS_IS_SUPER_SECRET_KEY_123456789",
