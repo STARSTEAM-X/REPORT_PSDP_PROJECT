@@ -48,7 +48,10 @@ dotnet ef migrations add InitialCreate
 dotnet ef database update
 ```
 
-## ⚙️ appsettings.json
+## ⚙️ Configuration – appsettings.json
+Create a file named appsettings.json in the folder MyApi of the project and configure your database connection string.
+
+Update the DefaultConnection value according to your database provider (e.g., PostgreSQL, SQL Server).
 ```json
 {
   "ConnectionStrings": {
