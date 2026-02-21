@@ -6,12 +6,12 @@
 .idea/
 
 # Build results
-bin/
-obj/
-artifacts/
+MyApi/bin/
+MyApi/obj/
+MyApi/artifacts/
 
 # Publish output
-publish/
+MyApi/publish/
 
 # User-specific files
 *.user
@@ -52,7 +52,7 @@ _ReSharper*/
 *.dll
 
 # Local app settings and secrets
-appsettings.Development.json
+MyApi/appsettings.Development.json
 secrets.json
 secrets.*
 
