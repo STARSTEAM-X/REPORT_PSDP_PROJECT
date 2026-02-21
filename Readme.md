@@ -59,7 +59,14 @@ dotnet ef database update
     "Issuer": "MyApi",
     "Audience": "MyApiUser",
     "ExpireMinutes": 60
-  }
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
 }
 ```
 
