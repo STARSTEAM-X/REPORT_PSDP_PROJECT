@@ -1,0 +1,756 @@
+{
+  "info": {
+    "_postman_id": "4f9d6bb8-21f7-4750-b759-69d768720351",
+    "name": "Maintenance System API - Full Flow",
+    "description": "Full API test including mock setup data",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "24974947",
+    "_collection_link": "https://go.postman.co/collection/24974947-4f9d6bb8-21f7-4750-b759-69d768720351?source=collection_link"
+  },
+  "item": [
+    {
+      "name": "Auth - Register Admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"123456\",\n  \"fullname\": \"Admin Role\",\n  \"phone\": \"0999999999\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth - Register User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@test.com\",\n  \"password\": \"123456\",\n  \"fullname\": \"Test User\",\n  \"phone\": \"0999999999\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/register",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "register"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth - Login User",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set('tokenUser', pm.response.json().token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"user@test.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth - Login Admin",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set('tokenAdmin', pm.response.json().token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"admin@test.com\",\n  \"password\": \"123456\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "login"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Location",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set('locationId', pm.response.json().locationId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"locationName\": \"ห้อง 101\" }"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/location",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "location"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create AssetCategory",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set('categoryId', pm.response.json().assetCgId || pm.response.json().categoryId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{ \"categoryName\": \"เครื่องเขียน\" }"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/assetcategory",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "assetcategory"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Asset (ปากกา)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"assetId\": \"PEN001\",\n  \"assetName\": \"ปากกา\",\n  \"assetCgId\": {{categoryId}}\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/asset",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "asset"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Create Report",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.environment.set('reportId', pm.response.json().reportId);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenUser}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"ปากกาหมึกไม่ออก\",\n  \"description\": \"PEN001 ใช้งานไม่ได้\",\n  \"locationId\": {{locationId}},\n  \"assetId\": \"PEN001\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/report",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Admin Review Report",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}/review?isValid=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}",
+            "review"
+          ],
+          "query": [
+            {
+              "key": "isValid",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Add Repair Cost",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"costName\": \"เปลี่ยนหมึก\",\n  \"costAmount\": 1,\n  \"costUnitPrice\": 20\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/reports/{{reportId}}/costs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "{{reportId}}",
+            "costs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Auth - Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenUser}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "auth",
+            "me"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "AssetCategory - Get All",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/assetcategory",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "assetcategory"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Asset - Get All",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/asset",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "asset"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Location - Get All",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/location",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "location"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Notification - Get My Notifications",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenUser}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/notification",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "notification"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Notification - Get Unread Count",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenUser}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/notification/unread-count",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "notification",
+            "unread-count"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Report - Get By Id",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenUser}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RepairCost - Get All By Report",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/reports/{{reportId}}/costs",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "{{reportId}}",
+            "costs"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RepairCost - Get Single",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/reports/{{reportId}}/costs/1",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "{{reportId}}",
+            "costs",
+            "1"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "RepairCost - Get Total",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/reports/{{reportId}}/costs/total",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "reports",
+            "{{reportId}}",
+            "costs",
+            "total"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1️⃣ Admin Review Report (Accept)",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}/review?isValid=true",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}",
+            "review"
+          ],
+          "query": [
+            {
+              "key": "isValid",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2️⃣ Admin Request More Info",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}/review?isValid=false",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}",
+            "review"
+          ],
+          "query": [
+            {
+              "key": "isValid",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3️⃣ Admin Start Repair",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}/start-repair",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}",
+            "start-repair"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4️⃣ Admin Mark Ready",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}/mark-ready",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}",
+            "mark-ready"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5️⃣ Admin Close Report",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{tokenAdmin}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/report/{{reportId}}/close",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "report",
+            "{{reportId}}",
+            "close"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000"
+    },
+    {
+      "key": "tokenUser",
+      "value": ""
+    },
+    {
+      "key": "tokenAdmin",
+      "value": ""
+    },
+    {
+      "key": "reportId",
+      "value": ""
+    },
+    {
+      "key": "locationId",
+      "value": ""
+    },
+    {
+      "key": "categoryId",
+      "value": ""
+    }
+  ]
+}

@@ -33,6 +33,12 @@ dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
 dotnet tool install --global dotnet-ef
 ```
 ##  🗄 Database Setup
+### Drop database in Supabase
+```sql
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public;
+```
+
 ### สร้าง Migration
 ```bash
 dotnet ef migrations add InitialCreate
@@ -83,3 +89,4 @@ _context.Notifications.Add(new Notification
     ReportId = report.ReportId
 });
 ```
+

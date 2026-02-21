@@ -16,7 +16,7 @@ public class Report
 
     public string? ImageAfter { get; set; }
 
-    public ReportStatus Status { get; set; } = ReportStatus.Pending;
+    public ReportStatus Status { get; set; } = ReportStatus.Submitted;
 
     public string? ProgressLog { get; set; } // JSON string
 

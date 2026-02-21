@@ -25,22 +25,27 @@ namespace MyApi.Migrations
             modelBuilder.Entity("MyApi.Modals.Asset", b =>
                 {
                     b.Property<string>("AssetId")
-                        .HasColumnType("text");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.Property<int>("AssetCgId")
                         .HasColumnType("integer");
 
                     b.Property<string>("AssetName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<int?>("CategoryAssetCgId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Timestamp")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("AssetId");
+
+                    b.HasIndex("AssetId")
+                        .IsUnique();
 
                     b.HasIndex("CategoryAssetCgId");
 
@@ -57,9 +62,13 @@ namespace MyApi.Migrations
 
                     b.Property<string>("CategoryName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.HasKey("AssetCgId");
+
+                    b.HasIndex("CategoryName")
+                        .IsUnique();
 
                     b.ToTable("AssetCategories");
                 });
@@ -72,11 +81,18 @@ namespace MyApi.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LocationId"));
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("LocationName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.HasKey("LocationId");
+
+                    b.HasIndex("LocationName")
+                        .IsUnique();
 
                     b.ToTable("Locations");
                 });
@@ -127,13 +143,17 @@ namespace MyApi.Migrations
 
                     b.Property<string>("CostName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<decimal>("CostTotal")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
 
                     b.Property<decimal>("CostUnitPrice")
-                        .HasColumnType("numeric");
+                        .HasColumnType("numeric(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("ReportId")
                         .HasColumnType("integer");
@@ -155,7 +175,7 @@ namespace MyApi.Migrations
 
                     b.Property<string>("AssetId")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasColumnType("character varying(50)");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -173,7 +193,7 @@ namespace MyApi.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ProgressLog")
-                        .HasColumnType("text");
+                        .HasColumnType("jsonb");
 
                     b.Property<int>("ReportOwner")
                         .HasColumnType("integer");
@@ -181,13 +201,15 @@ namespace MyApi.Migrations
                     b.Property<int?>("ReportTechnician")
                         .HasColumnType("integer");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Status")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("ReportId");
 

@@ -23,8 +23,7 @@ public class ApplicationDbContext : DbContext
         // Enum → string ใน PostgreSQL
         modelBuilder
             .Entity<Report>()
-            .Property(r => r.Status)
-            .HasConversion<string>();
+            .Property(r => r.Status);
 
         // Report → Owner (User)
         modelBuilder.Entity<Report>()

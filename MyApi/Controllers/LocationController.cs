@@ -48,6 +48,23 @@ public class LocationController : ControllerBase
         _context.Locations.Add(location);
         await _context.SaveChangesAsync();
 
+        // 🔔 แจ้งเตือนผู้ใช้ทุกคน (ตัวอย่าง)
+        var users = await _context.Users
+            .Where(u => !u.IsAdmin) // หรือเลือก role ที่ต้องการ
+            .ToListAsync();
+
+        foreach (var user in users)
+        {
+            _context.Notifications.Add(new Notification
+            {
+                Title = "มีสถานที่ใหม่ในระบบ",
+                Description = $"Location: {location.LocationName}",
+                UserId = user.UserId
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
         return Ok(location);
     }
 

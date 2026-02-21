@@ -18,7 +18,7 @@ namespace MyApi.Migrations
                 {
                     AssetCgId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CategoryName = table.Column<string>(type: "text", nullable: false)
+                    CategoryName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -31,7 +31,8 @@ namespace MyApi.Migrations
                 {
                     LocationId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    LocationName = table.Column<string>(type: "text", nullable: false)
+                    LocationName = table.Column<string>(type: "character varying(150)", maxLength: 150, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -59,9 +60,9 @@ namespace MyApi.Migrations
                 name: "Assets",
                 columns: table => new
                 {
-                    AssetId = table.Column<string>(type: "text", nullable: false),
-                    AssetName = table.Column<string>(type: "text", nullable: false),
-                    Timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    AssetId = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    AssetName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AssetCgId = table.Column<int>(type: "integer", nullable: false),
                     CategoryAssetCgId = table.Column<int>(type: "integer", nullable: true)
                 },
@@ -85,13 +86,14 @@ namespace MyApi.Migrations
                     Description = table.Column<string>(type: "text", nullable: true),
                     ImageBefore = table.Column<string>(type: "text", nullable: true),
                     ImageAfter = table.Column<string>(type: "text", nullable: true),
-                    Status = table.Column<string>(type: "text", nullable: false),
-                    ProgressLog = table.Column<string>(type: "text", nullable: true),
+                    Status = table.Column<int>(type: "integer", nullable: false),
+                    ProgressLog = table.Column<string>(type: "jsonb", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ReportOwner = table.Column<int>(type: "integer", nullable: false),
                     ReportTechnician = table.Column<int>(type: "integer", nullable: true),
                     LocationId = table.Column<int>(type: "integer", nullable: false),
-                    AssetId = table.Column<string>(type: "text", nullable: false)
+                    AssetId = table.Column<string>(type: "character varying(50)", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -156,10 +158,11 @@ namespace MyApi.Migrations
                 {
                     CostId = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    CostName = table.Column<string>(type: "text", nullable: false),
+                    CostName = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     CostAmount = table.Column<int>(type: "integer", nullable: false),
-                    CostUnitPrice = table.Column<decimal>(type: "numeric", nullable: false),
-                    CostTotal = table.Column<decimal>(type: "numeric", nullable: false),
+                    CostUnitPrice = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    CostTotal = table.Column<decimal>(type: "numeric(18,2)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     ReportId = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
@@ -174,9 +177,27 @@ namespace MyApi.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AssetCategories_CategoryName",
+                table: "AssetCategories",
+                column: "CategoryName",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Assets_AssetId",
+                table: "Assets",
+                column: "AssetId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Assets_CategoryAssetCgId",
                 table: "Assets",
                 column: "CategoryAssetCgId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Locations_LocationName",
+                table: "Locations",
+                column: "LocationName",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Notifications_ReportId",

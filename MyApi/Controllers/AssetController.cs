@@ -44,6 +44,23 @@ public class AssetController : ControllerBase
         _context.Assets.Add(asset);
         await _context.SaveChangesAsync();
 
+        // 🔔 แจ้งเตือน Technician ทุกคน
+        var technicians = await _context.Users
+            .Where(u => !u.IsAdmin) // หรือ role = Technician ถ้ามี
+            .ToListAsync();
+
+        foreach (var tech in technicians)
+        {
+            _context.Notifications.Add(new Notification
+            {
+                Title = "มีอุปกรณ์ใหม่ในระบบ",
+                Description = $"Asset: {asset.AssetName}",
+                UserId = tech.UserId
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
         return Ok(asset);
     }
 }

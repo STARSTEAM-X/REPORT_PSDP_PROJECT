@@ -25,7 +25,7 @@ public class ReportController : ControllerBase
     // 1️⃣ User สร้าง Report
     // =========================================================
     [HttpPost]
-    public async Task<IActionResult> Create(CreateReportDto dto)
+    public async Task<IActionResult> Create([FromBody] CreateReportDto dto)
     {
         var userId = int.Parse(
             User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -189,15 +189,31 @@ public class ReportController : ControllerBase
             User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
         var report = await _context.Reports
-            .Include(r => r.RepairCosts)
-            .FirstOrDefaultAsync(r => r.ReportId == id);
+            .Where(r => r.ReportId == id)
+            .Select(r => new ReportResponseDto
+            {
+                ReportId = r.ReportId,
+                Title = r.Title,
+                Description = r.Description,
+                Status = (int)r.Status,
+                CreatedAt = r.CreatedAt,
+                UpdatedAt = r.UpdatedAt,
+                RepairCosts = r.RepairCosts
+                    .Select(c => new RepairCostResponseDto
+                    {
+                        CostId = c.CostId,
+                        CostName = c.CostName,
+                        CostAmount = c.CostAmount,
+                        CostUnitPrice = c.CostUnitPrice,
+                        CostTotal = c.CostTotal,
+                        CreatedAt = c.CreatedAt,
+                        ReportId = c.ReportId
+                    }).ToList()
+            })
+            .FirstOrDefaultAsync();
 
         if (report == null)
             return NotFound();
-
-        if (!User.IsInRole("Admin") &&
-            report.ReportOwner != userId)
-            return Forbid();
 
         return Ok(report);
     }

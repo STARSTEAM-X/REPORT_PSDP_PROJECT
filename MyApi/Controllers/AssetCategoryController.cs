@@ -40,6 +40,23 @@ public class AssetCategoryController : ControllerBase
         _context.AssetCategories.Add(category);
         await _context.SaveChangesAsync();
 
+        // 🔔 แจ้งเตือน Admin คนอื่น
+        var admins = await _context.Users
+            .Where(u => u.IsAdmin)
+            .ToListAsync();
+
+        foreach (var admin in admins)
+        {
+            _context.Notifications.Add(new Notification
+            {
+                Title = "มีการเพิ่มหมวดหมู่ใหม่",
+                Description = $"Category: {category.CategoryName}",
+                UserId = admin.UserId
+            });
+        }
+
+        await _context.SaveChangesAsync();
+
         return Ok(category);
     }
 }
